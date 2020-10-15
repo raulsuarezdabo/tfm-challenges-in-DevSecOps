@@ -22,19 +22,19 @@ jobs:
     - stage: "publish-rc"
       name: "Publish Release Candidate on Docker Hub"
       before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      script: docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USER/$DOCKER_REPOSITORY-travisci:$TRAVIS_COMMIT-RC
-      after_script: docker push $DOCKER_REPOSITORY-travisci $DOCKER_USER/$DOCKER_REPOSITORY-travisci:$TRAVIS_COMMIT-RC
+      script: docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_COMMIT-RC
+      after_script: docker push $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_COMMIT-RC
       if: branch = develop
 
     - stage: "publish-version"
       name: "Publish Release on Docker Hub"
       before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       script:
-        - docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USER/$DOCKER_REPOSITORY-travisci:$TRAVIS_BUILD_NUMBER
-        - docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USER/$DOCKER_REPOSITORY-travisci:latest
+        - docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_BUILD_NUMBER
+        - docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:latest
       after_script:
-        - docker push $DOCKER_REPOSITORY-travisci $DOCKER_USER/$DOCKER_REPOSITORY-travisci:$TRAVIS_BUILD_NUMBER
-        - docker push $DOCKER_REPOSITORY-travisci $DOCKER_USER/$DOCKER_REPOSITORY-travisci:latest
+        - docker push $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_BUILD_NUMBER
+        - docker push $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:latest
       if: branch = main
 
 
