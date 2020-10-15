@@ -1,11 +1,6 @@
 language: java
 jdk: openjdk8
 
-stages:
-  - build
-  - name: test
-    if: branch = develop
-
 jobs:
   include:
     - stage: "build"
