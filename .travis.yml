@@ -7,18 +7,31 @@ jobs:
     - stage: "dependencies"
       name: "Download Dependencies"
       install: mvn install -Dtest.skip=true
+
     - stage: "test"
       name: "Testing"
       script: mvn test
+
     - stage: "docker"
       name: "Build Docker Image"
       script: docker build -t tfm/devsecop/travisci .
+
     - stage: "publish-rc"
       name: "Publish Release Candidate on Docker Hub"
       before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       script: docker tag tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:$TRAVIS_COMMIT-RC
+      after_script: docker push tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:$TRAVIS_COMMIT-RC
       if: branch = develop
 
-
-      #script: docker tag tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:$TRAVIS_BUILD_NUMBER-RC
+    - stage: "publish-version"
+        name: "Publish Release on Docker Hub"
+        before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        script:
+          - docker tag tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:$TRAVIS_BUILD_NUMBER
+          - docker tag tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:latest
+        after_script:
+          - docker push tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:$TRAVIS_BUILD_NUMBER
+          - docker push tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:latest
+        if: branch = main
+        
 
