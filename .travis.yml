@@ -1,7 +1,21 @@
 language: java
 jdk: openjdk8
 
-install:
-  - mvn install
-script:
-  - mvn test
+stages:
+  - build
+  - name: test
+    if branch = develop
+
+jobs:
+  include:
+    - stage: "build"
+      name: "Build Dependencies"
+      install: mvn install -Dtest.skip=true
+    - stage: "test"
+      name: "Testing"
+      script: mvn test
+
+# script: build the docker image
+# after_script: if fails notify, if we have some method.
+#after_script:
+  # - push to Docker Registry
