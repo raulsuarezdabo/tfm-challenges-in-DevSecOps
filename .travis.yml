@@ -15,10 +15,9 @@ jobs:
       script: docker build -t tfm/devsecop/travisci .
     - stage: "publish-rc"
       name: "Publish Release Candidate on Docker Hub"
-      before_script: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       script: docker tag tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:$TRAVIS_COMMIT-RC
-      branches:
-        - develop
+      if: branch = develop
 
 
       #script: docker tag tfm/devsecop/travisci $DOCKER_USER/tfm/devsecop/travisci:$TRAVIS_BUILD_NUMBER-RC
