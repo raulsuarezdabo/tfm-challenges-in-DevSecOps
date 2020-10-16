@@ -2,6 +2,7 @@ package uoc.edu.raulsuarez.devsecop.service;
 
 import org.springframework.stereotype.Service;
 import uoc.edu.raulsuarez.devsecop.dto.Calcul;
+import uoc.edu.raulsuarez.devsecop.dto.Operations;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,16 +56,16 @@ public class CalculatorServiceImpl implements CalculatorService {
         Integer result;
 
         switch (calcul.getOperation()) {
-            case "addition":
+            case Operations.ADD:
                 result = this.addition(head, xya);
                 break;
-            case "subtraction":
+            case Operations.SUB:
                 result = this.subtraction(head, xya);
                 break;
-            case "multiplication":
+            case Operations.MUL:
                 result = this.multiplication(head, xya);
                 break;
-            case "division":
+            case Operations.DIV:
                 result = this.division(head, xya);
                 break;
             default:
