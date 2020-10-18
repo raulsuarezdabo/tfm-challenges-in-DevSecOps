@@ -17,22 +17,22 @@ jobs:
       after_success:
         - bash <(curl -s https://codecov.io/bash)
 
+#    - stage: "smoke-test"
+#      name: "Smoke Testing"
+#      script: mvn verify -Pintegration-test
+
     - stage: "publish-rc"
       name: "Publish Release Candidate on Docker Hub"
       before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      script: docker build -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_COMMIT-RC .
+      script: docker build -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_BUILD_NUMBER-RC.$TRAVIS_JOB_NUMBER .
       after_script: docker push $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci
       if: branch = develop
 
     - stage: "publish-version"
       name: "Publish Release on Docker Hub"
       before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      script:
-        - docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_BUILD_NUMBER
-        - docker tag $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:latest
-      after_script:
-        - docker push $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_BUILD_NUMBER
-        - docker push $DOCKER_REPOSITORY-travisci $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:latest
+      script: docker build -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:v$TRAVIS_BUILD_NUMBER -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:latest .
+      after_script: docker push $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci
       if: branch = main
 
 
