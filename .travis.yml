@@ -14,6 +14,8 @@ jobs:
     - stage: "test"
       name: "Testing"
       script: mvn test
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
 
     - stage: "publish-rc"
       name: "Publish Release Candidate on Docker Hub"
