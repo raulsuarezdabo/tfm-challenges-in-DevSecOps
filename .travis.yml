@@ -17,9 +17,9 @@ jobs:
       after_success:
         - bash <(curl -s https://codecov.io/bash)
 
-#    - stage: "smoke-test"
-#      name: "Smoke Testing"
-#      script: mvn verify -Pintegration-test
+    - stage: "integration-test"
+      name: "Integration Testing"
+      script: mvn test -Dtest=IntegrationTest
 
     - stage: "publish-rc"
       name: "Publish Release Candidate on Docker Hub"
