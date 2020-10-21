@@ -4,6 +4,13 @@ services: docker
 
 env:
   - DOCKER_REPOSITORY="tfm-devsecop"
+  - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+  - CLUSTER_ZONE="europe-west1-b"
+  - CLUSTER_ID="cluster-tfm-devsecop-travisci"
+  - PROJECT_ID="first-cluster-293016"
+cache:
+  directories:
+    - $HOME/google-cloud-sdk
 
 jobs:
   include:
@@ -35,4 +42,24 @@ jobs:
       after_script: docker push $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci
       if: branch = main
 
+    - stage: "deploy"
+      name: "Deploy to GKE"
+      before_install:
+        - if [ ! -d $HOME/google-cloud-sdk/bin ]; then
+          rm -rf $HOME/google-cloud-sdk;
+          curl https://sdk.cloud.google.com | bash > /dev/null;
+          fi
+        - source $HOME/google-cloud-sdk/path.bash.inc
+        - gcloud components update kubectl
+        - gcloud version
+        - echo "deb [trusted=yes] https://apt.secrethub.io stable main" | sudo tee /etc/apt/sources.list.d/secrethub.sources.list
+        - sudo apt-get update && sudo apt-get install -y secrethub-cli
+      install: true
+      env:
+        - KEY_FILE="secrethub://raulsuarezdabo/tfm/travisci/credentialsgke"
+      script:
+        - gcloud auth activate-service-account --key-file $KEY_FILE
+        - gcloud container clusters get-credentials $CLUSTER_ID --zone $CLUSTER_ZONE --project $PROJECT_ID
+        - kubectl apply -f kube.yml
+      if: branch = development
 
