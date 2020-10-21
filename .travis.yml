@@ -61,5 +61,5 @@ jobs:
         - gcloud auth activate-service-account --key-file $KEY_FILE
         - gcloud container clusters get-credentials $CLUSTER_ID --zone $CLUSTER_ZONE --project $PROJECT_ID
         - kubectl apply -f kube.yml
-      if: branch = development
+      if: branch = develop
 
