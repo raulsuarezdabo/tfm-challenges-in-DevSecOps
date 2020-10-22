@@ -16,8 +16,9 @@ CLUSTER_ZONE=$3
 
 # Make sure kubectl is updated to latest version
 #gcloud components update kubectl
-echo "Project: $PROJECT_ID with cluster ID: $CLUSTER_ID at zone: $CLUSTER_ZONE"
-gcloud auth activate-service-account --key-file $KEY_FILE
+echo $KEY_FILE >> file.json
+gcloud auth activate-service-account --key-file file.json
+rm file.json
 gcloud container clusters get-credentials $CLUSTER_ID --zone $CLUSTER_ZONE --project $PROJECT_ID
 kubectl apply -f kube.yml
 
