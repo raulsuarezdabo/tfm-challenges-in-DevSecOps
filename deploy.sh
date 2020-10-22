@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-KEY_FILE=$1
-PROJECT_ID=$2
-CLUSTER_ID=$3
-CLUSTER_ZONE=$4
+
+PROJECT_ID=$1
+CLUSTER_ID=$2
+CLUSTER_ZONE=$3
 
 
 # Make sure we have gcloud installed in travis env
