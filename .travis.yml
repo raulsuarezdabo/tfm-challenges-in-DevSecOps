@@ -1,0 +1,64 @@
+language: java
+jdk: openjdk8
+services: docker
+
+env:
+  global:
+    - DOCKER_REPOSITORY="tfm-devsecop"
+cache:
+  directories:
+    - $HOME/google-cloud-sdk
+
+jobs:
+  include:
+    - stage: "dependencies"
+      name: "Download Dependencies"
+      install: mvn install -Dtest.skip=true
+
+    - stage: "test"
+      name: "Testing"
+      script: mvn test
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
+
+    - stage: "integration-test"
+      name: "Integration Testing"
+      script: mvn test -Dtest=IntegrationTest
+
+    - stage: "publish-rc"
+      name: "Publish Release Candidate on Docker Hub"
+      before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      script: docker build -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_JOB_NUMBER-RC .
+      after_script: docker push $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci
+      if: branch = develop
+
+    - stage: "publish-version"
+      name: "Publish Release on Docker Hub"
+      before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      script: docker build -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:v$TRAVIS_BUILD_NUMBER -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:latest .
+      after_script: docker push $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci
+      if: branch = main
+
+    - stage: "deploy"
+      name: "Deploy to GKE"
+      before_install:
+        - if [ ! -d $HOME/google-cloud-sdk/bin ]; then
+          rm -rf $HOME/google-cloud-sdk;
+          curl https://sdk.cloud.google.com | bash > /dev/null;
+          fi
+        - source $HOME/google-cloud-sdk/path.bash.inc
+        - gcloud components update kubectl
+        - gcloud version
+        - echo "deb [trusted=yes] https://apt.secrethub.io stable main" | sudo tee /etc/apt/sources.list.d/secrethub.sources.list
+        - sudo apt-get update && sudo apt-get install -y secrethub-cli
+      install: true
+      env:
+        - KEY_FILE="secrethub://raulsuarezdabo/tfm/travisci/credentialsgke"
+        - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+        - CLUSTER_ZONE="europe-west1-b"
+        - CLUSTER_ID="cluster-tfm-devsecop-travisci"
+        - PROJECT_ID="first-cluster-293016"
+      script:
+        -  secrethub run -- ./deploy.sh
+      if: branch = main
+

@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tfm-devsecop-travisci
+spec:
+  type: LoadBalancer
+  selector:
+    app: tfm-devsecop-travisci
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tfm-devsecop-travisci
+  labels:
+    app: tfm-devsecop-travisci
+spec:
+  selector:
+    matchLabels:
+      app: tfm-devsecop-travisci
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tfm-devsecop-travisci
+    spec:
+      containers:
+        - name: tfm-devsecop-travisci
+          image: raulsuarezdabo/tfm-devsecop-travisci:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
