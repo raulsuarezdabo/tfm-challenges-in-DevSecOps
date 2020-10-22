@@ -30,14 +30,16 @@ jobs:
       before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       script: docker build -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:$TRAVIS_JOB_NUMBER-RC .
       after_script: docker push $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci
-      if: branch = develop
+      branches:
+        only: develop
 
     - stage: "publish-version"
       name: "Publish Release on Docker Hub"
       before_script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       script: docker build -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:v$TRAVIS_BUILD_NUMBER -t $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci:latest .
       after_script: docker push $DOCKER_USERNAME/$DOCKER_REPOSITORY-travisci
-      if: branch = main
+      branches:
+        only: main
 
     - stage: "deploy"
       name: "Deploy to GKE"
@@ -60,5 +62,6 @@ jobs:
         - PROJECT_ID="first-cluster-293016"
       script:
         -  secrethub run -- ./deploy.sh
-      if: branch = main
+      branches:
+        only: main
 
