@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: tfm-devsecop-travisci
-          image: raulsuarezdabo/tfm-devsecop-travisci:31.4-RC
+          image: raulsuarezdabo/tfm-devsecop-travisci:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

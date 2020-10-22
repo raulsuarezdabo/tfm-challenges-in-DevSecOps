@@ -60,5 +60,5 @@ jobs:
         - PROJECT_ID="first-cluster-293016"
       script:
         -  secrethub run -- ./deploy.sh
-      if: branch = develop
+      if: branch = main
 
