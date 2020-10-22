@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-PROJECT_ID=$1
-CLUSTER_ID=$2
-CLUSTER_ZONE=$3
+PROJECT_ID="first-cluster-293016"
+CLUSTER_ID="cluster-tfm-devsecop-travisci"
+CLUSTER_ZONE="europe-west1-b"
 
 
 # Make sure we have gcloud installed in travis env

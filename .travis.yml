@@ -59,7 +59,7 @@ jobs:
         - KEY_FILE="secrethub://raulsuarezdabo/tfm/travisci/credentialsgke"
         - CLOUDSDK_CORE_DISABLE_PROMPTS=1
       script:
-        -  secrethub run -- ./deploy.sh $PROJECT_ID $CLUSTER_ID $CLUSTER_ZONE
+        -  secrethub run -- ./deploy.sh
 #        - echo $KEY_FILE >> file.json
 #        - secrethub run -- gcloud auth activate-service-account --key-file file.json
 #        - rm file.json
