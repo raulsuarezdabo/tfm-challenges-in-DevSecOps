@@ -39,9 +39,9 @@ pipeline {
             steps{
                 echo 'Publishing release candidate...'
                 script {
-                    docker.build(DOCKER_REPOSITORY)
-                    docker.withRegistry("", "docker_hub_login") {
-                        dockerImage.push("${env.BUILD_NUMBER}-RC")
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                    docker.withRegistry( '', docker_hub_login ) {
+                        dockerImage.push()
                     }
                 }
             }
