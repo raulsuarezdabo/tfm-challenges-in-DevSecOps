@@ -34,7 +34,7 @@ pipeline {
         }
         stage('Publish Release Candidate') {
             when {
-                branch 'jenkins'
+                branch 'develop'
             }
             steps{
                 echo 'Publishing release candidate...'
@@ -42,6 +42,20 @@ pipeline {
                     dockerImage = docker.build(DOCKER_REPOSITORY)
                     docker.withRegistry("", "docker_hub_login") {
                         dockerImage.push("${env.BUILD_NUMBER}-RC")
+                    }
+                }
+            }
+        }
+        stage('Publish Release Candidate') {
+            when {
+                branch 'main'
+            }
+            steps{
+                echo 'Publishing release...'
+                script {
+                    dockerImage = docker.build(DOCKER_REPOSITORY)
+                    docker.withRegistry("", "docker_hub_login") {
+                        dockerImage.push("${env.BUILD_NUMBER}")
                     }
                 }
             }
