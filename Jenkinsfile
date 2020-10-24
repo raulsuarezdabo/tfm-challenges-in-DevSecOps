@@ -18,7 +18,7 @@ pipeline {
                     } finally {
                         junit '**/build/test-results/test/*.xml'
                         jacoco(
-                            execPattern: '**/path_to_file/jacoco.exec',
+                            execPattern: '**/target/jacoco.exec',
                             classPattern: '**/coverage/**',
                             sourcePattern: '**/coverage/**',
                             inclusionPattern: '**/*.class'
