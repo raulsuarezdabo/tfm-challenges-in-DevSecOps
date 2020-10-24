@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        DOCKER_REPOSITORY = "raulsuarezdabo/tfm-devsecop-jenkins"
+    }
     stages {
         stage('Dependencies') {
             steps {
@@ -29,6 +32,19 @@ pipeline {
                 }
             }
         }
+        stage('Publish Release Candidate') {
+            when {
+                branch 'jenkins'
+            }
+            echo 'Publishing release candidate...'
+            steps{
+                script {
+                    docker.build(DOCKER_REPOSITORY)
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
+                        app.push("${env.BUILD_NUMBER}")
+                    }
+                }
+            }
+        }
     }
-
 }
