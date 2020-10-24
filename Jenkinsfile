@@ -13,16 +13,17 @@ pipeline {
             steps {
                 echo 'JUnit testing...'
                 script {
-                    try {
                         sh "mvn test"
-                    } finally {
-                        jacoco(
-                            execPattern: '**/target/jacoco.exec',
-                            classPattern: '**/coverage/**',
-                            sourcePattern: '**/coverage/**',
-                            inclusionPattern: '**/*.class'
-                        )
-                    }
+                }
+                post {
+                    junit "**/build/test-results/*.xml"
+                    step([
+                         $class           : 'JacocoPublisher',
+                         execPattern      : 'build/jacoco/jacoco.exec',
+                         classPattern     : 'build/classes/main',
+                         sourcePattern    : 'src/main/java',
+                         exclusionPattern : '**/*Test.class'
+                    ])
                 }
             }
         }
