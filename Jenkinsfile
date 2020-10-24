@@ -18,15 +18,14 @@ pipeline {
                             sh "mvn test"
                         } finally {
                             junit '**/build/test-results/test/*.xml'
+                            jacoco(
+                                execPattern: '**/path_to_file/jacoco.exec',
+                                classPattern: '**/coverage/**',
+                                sourcePattern: '**/coverage/**',
+                                inclusionPattern: '**/*.class'
+                            )
                         }
                     }
-                }
-                step {
-                    - class: 'JacocoPublisher'
-                    - execPattern: '**/build/jacoco/*.exec'
-                    - classPattern: '**/build/classes'
-                    - sourcePattern: 'src/main/java'
-                    - exclusionPattern: 'src/test*'
                 }
             }
         }
