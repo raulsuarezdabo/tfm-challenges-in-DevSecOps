@@ -36,8 +36,8 @@ pipeline {
             when {
                 branch 'jenkins'
             }
-            echo 'Publishing release candidate...'
             steps{
+                echo 'Publishing release candidate...'
                 script {
                     docker.build(DOCKER_REPOSITORY)
                     docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
