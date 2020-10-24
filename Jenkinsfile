@@ -46,7 +46,7 @@ pipeline {
                 }
             }
         }
-        stage('Publish Release Candidate') {
+        stage('Publish Release') {
             when {
                 branch 'main'
             }
