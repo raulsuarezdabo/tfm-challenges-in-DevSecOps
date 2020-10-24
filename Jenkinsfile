@@ -40,8 +40,8 @@ pipeline {
                 echo 'Publishing release candidate...'
                 script {
                     docker.build(DOCKER_REPOSITORY)
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
-                        app.push("${env.BUILD_NUMBER}")
+                    docker.withRegistry('', 'docker_hub_login') {
+                        dockerImage.push("${env.BUILD_NUMBER}-RC")
                     }
                 }
             }
