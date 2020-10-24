@@ -1,7 +1,7 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Dependencies') {
             steps {
                 echo 'Downloading the dependencies..'
                 script {
@@ -9,11 +9,19 @@ pipeline {
                 }
             }
         }
-        stage('Hello') {
+        stage('Testing') {
             steps {
-                echo 'hello..'
+                echo 'JUnit testing...'
                 script {
-                    sh "echo 'world'"
+                    sh "mvn test"
+                }
+            }
+        }
+        stage('Integration Testing') {
+            steps {
+                echo 'Integration testing...'
+                script {
+                    sh "mvn test -Dtest=IntegrationTest"
                 }
             }
         }
