@@ -10,7 +10,7 @@ pipeline {
             steps {
                 echo 'Downloading the dependencies..'
                 script {
-                    mvn install -Dtest.skip=true
+                    mvn install -DskipTests=true
                 }
             }
         }
