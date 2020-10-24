@@ -40,7 +40,7 @@ pipeline {
                 echo 'Publishing release candidate...'
                 script {
                     dockerImage = docker.build registry + ":$BUILD_NUMBER"
-                    docker.withRegistry( '', docker_hub_login ) {
+                    docker.withRegistry( '', 'docker_hub_login' ) {
                         dockerImage.push()
                     }
                 }
