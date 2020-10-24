@@ -9,8 +9,7 @@ pipeline {
             steps {
                 echo 'Downloading the dependencies..'
                 script {
-                    def skipTest="true"
-                    mvn install -DskipTests=${skipTest}
+                    sh "mvn install -DskipTests=true"
                 }
             }
         }
