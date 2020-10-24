@@ -11,20 +11,18 @@ pipeline {
         }
         stage('Testing') {
             steps {
-                step{
-                    echo 'JUnit testing...'
-                    script {
-                        try {
-                            sh "mvn test"
-                        } finally {
-                            junit '**/build/test-results/test/*.xml'
-                            jacoco(
-                                execPattern: '**/path_to_file/jacoco.exec',
-                                classPattern: '**/coverage/**',
-                                sourcePattern: '**/coverage/**',
-                                inclusionPattern: '**/*.class'
-                            )
-                        }
+                echo 'JUnit testing...'
+                script {
+                    try {
+                        sh "mvn test"
+                    } finally {
+                        junit '**/build/test-results/test/*.xml'
+                        jacoco(
+                            execPattern: '**/path_to_file/jacoco.exec',
+                            classPattern: '**/coverage/**',
+                            sourcePattern: '**/coverage/**',
+                            inclusionPattern: '**/*.class'
+                        )
                     }
                 }
             }
