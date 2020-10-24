@@ -16,7 +16,6 @@ pipeline {
                     try {
                         sh "mvn test"
                     } finally {
-                        junit '**/build/test-results/test/*.xml'
                         jacoco(
                             execPattern: '**/target/jacoco.exec',
                             classPattern: '**/coverage/**',
