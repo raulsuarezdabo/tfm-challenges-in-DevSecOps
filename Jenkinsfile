@@ -60,5 +60,10 @@ pipeline {
                 }
             }
         }
+        stage('Deploy') {
+            when {
+                branch 'jenkins'
+            }
+        }
     }
 }
