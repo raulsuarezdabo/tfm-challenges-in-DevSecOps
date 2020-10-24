@@ -17,7 +17,7 @@ pipeline {
                         sh "mvn test"
                     } finally {
                         jacoco(
-                            execPattern: '**/target/jacoco.xml'
+                            execPattern: '**/target/site/jacoco/jacoco.xml'
                         )
                     }
                 }
