@@ -70,7 +70,7 @@ pipeline {
                 CLUSTER_ID="cluster-tfm-devsecop-jenkins"
                 PROJECT_ID="first-cluster-293016"
             }
-            steps{
+            steps {
                 echo 'Deploying...'
                 withCredentials([[$class: 'FileBinding', credentialsId: 'secret_file', variable: 'KEY_FILE']]) {
                     sh """
@@ -82,7 +82,9 @@ pipeline {
                         gcloud components update kubectl
                         gcloud version
                     """
-                    sh 'gcloud auth activate-service-account --key-file "$KEY_FILE"'
+                    sh 'gcloud auth activate-service-account --key-file $KEY_FILE'
+                    sh 'gcloud container clusters get-credentials $CLUSTER_ID --zone $CLUSTER_ZONE --project $PROJECT_ID'
+                    sh 'kubectl apply -f kube.yml'
                 }
             }
         }
