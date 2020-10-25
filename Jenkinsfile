@@ -62,7 +62,7 @@ pipeline {
         }
         stage('Deploy') {
             when {
-                branch 'jenkins'
+                branch 'main'
             }
             environment {
                 CLOUDSDK_CORE_DISABLE_PROMPTS=1
