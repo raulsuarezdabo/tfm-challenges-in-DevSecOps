@@ -65,7 +65,7 @@ pipeline {
                 branch 'jenkins'
             }
             environment {
-                KEY_FILE=credentials("KEY_FILE")
+                KEY_FILE=withCredentials("KEY_FILE")
                 CLOUDSDK_CORE_DISABLE_PROMPTS=1
                 CLUSTER_ZONE="europe-west1-b"
                 CLUSTER_ID="cluster-tfm-devsecop-jenkins"
