@@ -74,7 +74,7 @@ pipeline {
                 echo 'Deploying...'
                 script {
                     withCredentials([file(credentialsId: 'key_file', variable: 'KEY_FILE')]) {
-                    sh "gcloud auth activate-service-account --key-file ${FILE_NAME}"
+                    sh "gcloud auth activate-service-account --key-file $KEY_FILE"
                 }
             }
         }
