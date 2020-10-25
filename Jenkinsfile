@@ -72,7 +72,7 @@ pipeline {
             }
             steps{
                 echo 'Deploying...'
-                withCredentials([[$class: 'FileBinding', credentialsId: 'key_file', variable: 'KEY_FILE']]) {
+                withCredentials([[$class: 'FileBinding', credentialsId: 'secret_file', variable: 'KEY_FILE']]) {
                   sh 'gcloud auth activate-service-account --key-file $KEY_FILE'
                 }
             }
