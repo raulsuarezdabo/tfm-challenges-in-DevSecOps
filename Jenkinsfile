@@ -72,6 +72,17 @@ pipeline {
             }
             steps{
                 echo 'Deploying...'
+                script {
+                    """
+                        if [ ! -d $HOME/google-cloud-sdk/bin ]; then
+                        rm -rf $HOME/google-cloud-sdk;
+                        curl https://sdk.cloud.google.com | bash > /dev/null;
+                        fi
+                        source $HOME/google-cloud-sdk/path.bash.inc
+                        gcloud components update kubectl
+                        gcloud version
+                    """
+                }
                 withCredentials([[$class: 'FileBinding', credentialsId: 'secret_file', variable: 'KEY_FILE']]) {
                   sh 'echo $KEY_FILE'
                 }
