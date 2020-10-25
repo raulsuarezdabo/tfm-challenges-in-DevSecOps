@@ -81,10 +81,10 @@ pipeline {
                         source $HOME/google-cloud-sdk/path.bash.inc
                         gcloud components update kubectl
                         gcloud version
+                        gcloud auth activate-service-account --key-file $KEY_FILE'
+                        gcloud container clusters get-credentials $CLUSTER_ID --zone $CLUSTER_ZONE --project $PROJECT_ID'
+                        kubectl apply -f kube.yml
                     """
-                    sh 'gcloud auth activate-service-account --key-file $KEY_FILE'
-                    sh 'gcloud container clusters get-credentials $CLUSTER_ID --zone $CLUSTER_ZONE --project $PROJECT_ID'
-                    sh 'kubectl apply -f kube.yml'
                 }
             }
         }
