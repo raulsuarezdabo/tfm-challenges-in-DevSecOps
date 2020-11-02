@@ -12,7 +12,7 @@ pipeline {
                 }
             }
         }
-        stage('Dependencies Check') {
+/*        stage('Dependencies Check') {
             steps {
                 echo 'Dependencies Check...'
                 dependencyCheck additionalArguments: '''
@@ -23,6 +23,7 @@ pipeline {
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
             }
         }
+*/
         stage('Testing') {
             steps {
                 echo 'JUnit testing...'
