@@ -12,6 +12,17 @@ pipeline {
                 }
             }
         }
+        stage('Dependencies Check') {
+            steps {
+                echo 'Dependencies Check...'
+                dependencyCheck additionalArguments: '''
+                    -o "./"
+                    -s "./"
+                    -f "ALL"
+                    --prettyPrint''', odcInstallation: 'OWASP-DC'
+                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+            }
+        }
         stage('Testing') {
             steps {
                 echo 'JUnit testing...'
