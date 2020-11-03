@@ -16,7 +16,7 @@ pipeline {
             steps {
                 echo 'Dependencies Check...'
                 script {
-                    sh "/usr/lib/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
+                    sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
                 }
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
             }
