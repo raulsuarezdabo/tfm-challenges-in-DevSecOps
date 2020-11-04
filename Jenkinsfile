@@ -4,6 +4,26 @@ pipeline {
         DOCKER_REPOSITORY = "raulsuarezdabo/tfm-devsecop-jenkins"
     }
     stages {
+        stage('Dependencies') {
+            steps {
+                echo 'Downloading the dependencies..'
+                script {
+                    sh "mvn install -DskipTests=true"
+                }
+            }
+        }
+        stage('Testing') {
+            steps {
+                echo 'JUnit testing...'
+                script {
+                    try {
+                        sh "mvn test"
+                    } finally {
+                        jacoco(execPattern: 'target/jacoco.exec')
+                    }
+                }
+            }
+        }
         stage('Sonarqube') {
             environment {
                 scannerHome = tool 'SonarQubeScanner'
@@ -17,14 +37,6 @@ pipeline {
                 }
             }
         }
-        stage('Dependencies') {
-            steps {
-                echo 'Downloading the dependencies..'
-                script {
-                    sh "mvn install -DskipTests=true"
-                }
-            }
-        }
         stage('Dependencies Check') {
             steps {
                 echo 'Dependencies Check...'
@@ -32,19 +44,6 @@ pipeline {
                     sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
                 }
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-            }
-        }
-
-        stage('Testing') {
-            steps {
-                echo 'JUnit testing...'
-                script {
-                    try {
-                        sh "mvn test"
-                    } finally {
-                        jacoco(execPattern: 'target/jacoco.exec')
-                    }
-                }
             }
         }
         stage('Integration Testing') {
