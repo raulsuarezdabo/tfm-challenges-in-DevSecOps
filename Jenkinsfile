@@ -12,6 +12,15 @@ pipeline {
                 }
             }
         }
+        stage('Dependencies Check') {
+            steps {
+                echo 'Dependencies Check...'
+                script {
+                    sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
+                }
+                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+            }
+        }
         stage('Testing') {
             steps {
                 echo 'JUnit testing...'
@@ -24,6 +33,14 @@ pipeline {
                 }
             }
         }
+        stage('Integration Testing') {
+            steps {
+                echo 'Integration testing...'
+                script {
+                    sh "mvn test -Dtest=IntegrationTest"
+                }
+            }
+        }
         stage('Sonarqube') {
             environment {
                 scannerHome = tool 'SonarQubeScanner'
@@ -31,26 +48,6 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarqube') {
                     sh "${scannerHome}/bin/sonar-scanner"
-                }
-                /*timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }*/
-            }
-        }
-        stage('Dependencies Check') {
-            steps {
-                echo 'Dependencies Check...'
-                script {
-                    sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
-                }
-                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-            }
-        }
-        stage('Integration Testing') {
-            steps {
-                echo 'Integration testing...'
-                script {
-                    sh "mvn test -Dtest=IntegrationTest"
                 }
             }
         }
