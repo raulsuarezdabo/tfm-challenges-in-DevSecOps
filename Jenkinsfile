@@ -13,10 +13,10 @@ pipeline {
                     sh "echo 'Verifying dependencies...'"
                     sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
                 }
-                post {
-                    sh "echo 'Loading the report...'"
-                    dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-                }
+            }
+            post {
+                sh "echo 'Loading the report...'"
+                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
             }
         }
         stage('Testing') {
