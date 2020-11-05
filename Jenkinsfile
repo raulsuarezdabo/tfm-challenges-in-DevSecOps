@@ -40,12 +40,14 @@ pipeline {
         }
         stage('Publish Release Candidate') {
             when {
-                branch 'develop'
+                branch 'devsecop'
             }
             steps{
                 echo 'Publishing release candidate...'
                 script {
                     dockerImage = docker.build(DOCKER_REPOSITORY)
+                    echo 'Vulnerability Scanner for this container before to push.'
+                    sh "trivy image ${DOCKER_REPOSITORY}:latest"
                     docker.withRegistry("", "docker_hub_login") {
                         dockerImage.push("${env.BUILD_NUMBER}-RC")
                     }
