@@ -14,8 +14,10 @@ pipeline {
                     sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
                 }
             }
-            post {
-                sh "echo 'Loading the report...'"
+        }
+        post {
+            always {
+                echo "Loading the report..."
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
             }
         }
