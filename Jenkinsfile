@@ -79,6 +79,12 @@ pipeline {
                 }
             }
         }
+        stage('Vulnerability Scanner') {
+            steps {
+                echo 'Vulnerability Scanner for container...'
+                sh "trivy image raulsuarezdabo/tfm-devsecop-jenkins:1"
+            }
+        }
         stage('Deploy') {
             when {
                 branch 'main'
