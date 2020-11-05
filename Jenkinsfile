@@ -40,9 +40,9 @@ pipeline {
         }
         stage('Publish Release Candidate') {
             environment {
-                FILE_OUTPUT_TYPE=json
-                FILE_OUTPUT_NAME=results.json
-                SEVERITY_BLOCK=CRITICAL
+                FILE_OUTPUT_TYPE='json'
+                FILE_OUTPUT_NAME='results.json'
+                SEVERITY_BLOCK='CRITICAL'
             }
             when {
                 branch 'devsecop'
