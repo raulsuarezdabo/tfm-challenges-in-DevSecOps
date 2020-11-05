@@ -39,6 +39,11 @@ pipeline {
             }
         }
         stage('Publish Release Candidate') {
+            environment {
+                FILE_OUTPUT_TYPE=json
+                FILE_OUTPUT_NAME=results.json
+                SEVERITY_BLOCK=CRITICAL
+            }
             when {
                 branch 'devsecop'
             }
@@ -47,7 +52,7 @@ pipeline {
                 script {
                     dockerImage = docker.build(DOCKER_REPOSITORY)
                     echo 'Vulnerability Scanner for this container before to push.'
-                    sh "trivy image ${DOCKER_REPOSITORY}:latest"
+                    sh "trivy image --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
                     docker.withRegistry("", "docker_hub_login") {
                         dockerImage.push("${env.BUILD_NUMBER}-RC")
                     }
