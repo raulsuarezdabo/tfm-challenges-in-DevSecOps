@@ -18,21 +18,13 @@ pipeline {
         }
         stage('Testing') {
             steps {
-                echo 'JUnit testing...'
+                echo 'Test stage'
                 script {
-                    try {
-                        sh "mvn test"
-                    } finally {
-                        jacoco(execPattern: 'target/jacoco.exec')
-                    }
-                }
-            }
-        }
-        stage('Integration Testing') {
-            steps {
-                echo 'Integration testing...'
-                script {
+                    sh "echo 'JUnit testing...'"
+                    sh "mvn test"
+                    sh "echo 'Integration testing...'"
                     sh "mvn test -Dtest=IntegrationTest"
+                    jacoco(execPattern: 'target/jacoco.exec')
                 }
             }
         }
