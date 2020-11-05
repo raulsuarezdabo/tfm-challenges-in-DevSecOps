@@ -12,7 +12,6 @@ pipeline {
                     sh "mvn install -DskipTests=true"
                     sh "echo 'Verifying dependencies...'"
                     sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
-                    sh "echo "'Loading the report...'"
                     dependencyCheckPublisher pattern: 'dependency-check-report.xml'
                 }
             }
