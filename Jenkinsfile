@@ -6,19 +6,17 @@ pipeline {
     stages {
         stage('Dependencies') {
             steps {
-                echo 'Downloading the dependencies..'
+                echo 'Dependency stage'
                 script {
+                    sh "echo 'Downloading dependencies...'"
                     sh "mvn install -DskipTests=true"
-                }
-            }
-        }
-        stage('Dependencies Check') {
-            steps {
-                echo 'Dependencies Check...'
-                script {
+                    sh "echo 'Verifying dependencies...'"
                     sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
                 }
-                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+                post {
+                    sh "echo 'Loading the report...'"
+                    dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+                }
             }
         }
         stage('Testing') {
