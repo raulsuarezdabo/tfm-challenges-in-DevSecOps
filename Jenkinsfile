@@ -77,7 +77,7 @@ pipeline {
                     echo 'Cleaning vulnerability scanner...'
                     sh "trivy image --clear-cache"
                     echo 'Vulnerability Scanner for this container before push.'
-                    sh "trivy image --clear-cache --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
+                    sh "trivy image --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
                     docker.withRegistry("", "docker_hub_login") {
                         dockerImage.push("${CONTAINER_VERSION}")
                     }
