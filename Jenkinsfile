@@ -48,7 +48,7 @@ pipeline {
         }
         // ... ends of SAST
         // Dynamic Application Security Testing (DAST) stages starts...
-        stage('Publish Release Candidate') {
+        stage('Publish Release') {
             environment {
                 FILE_OUTPUT_TYPE='json'
                 FILE_OUTPUT_NAME='results.json'
@@ -74,11 +74,14 @@ pipeline {
                     }
                     echo MSG_CASE
                     dockerImage = docker.build(DOCKER_REPOSITORY)
-                    echo 'Vulnerability Scanner for this container before to push.'
+                    echo 'Cleaning vulnerability scanner...'
+                    sh "trivy image --clear-cache"
+                    echo 'Vulnerability Scanner for this container before push.'
                     sh "trivy image --clear-cache --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
                     docker.withRegistry("", "docker_hub_login") {
                         dockerImage.push("${CONTAINER_VERSION}")
                     }
+                    echo "Container ${DOCKER_REPOSITORY}:${CONTAINER_VERSION} pushed: OK"
                 }
             }
         }
