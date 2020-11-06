@@ -54,7 +54,10 @@ pipeline {
                 FILE_OUTPUT_NAME='results.json'
             }
             when {
-                branch 'devsecop'
+                anyOf {
+                    branch 'devsecop'
+                    branch 'main'
+                }
             }
             steps{
                 script {
@@ -62,37 +65,21 @@ pipeline {
                         MSG_CASE = 'Publishing Release Candidate'
                         SEVERITY_BLOCK = 'CRITICAL'   // criteria for RC, just blocks only if finds CRITICAL
                         CONTAINER_VERSION = env.BUILD_NUMBER+'-RC'
+                    } else if (env.BRANCH_NAME == 'main') {
+                        MSG_CASE = 'Publishing Release'
+                        SEVERITY_BLOCK = 'CRITICAL,HIGH'   // criteria for release, blocks if finds CRITICAL or HIGH
+                        CONTAINER_VERSION = env.BUILD_NUMBER
+                    } else {
+                        error "Pipeline error, impossible to create an image on this branch ${env.BRANCH_NAME}"
                     }
                     echo MSG_CASE
                     dockerImage = docker.build(DOCKER_REPOSITORY)
                     echo 'Vulnerability Scanner for this container before to push.'
-                    sh "trivy image --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
+                    sh "trivy image --clear-cache --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
                     docker.withRegistry("", "docker_hub_login") {
-                        dockerImage.push("${env.BUILD_NUMBER}-RC")
+                        dockerImage.push("${CONTAINER_VERSION}")
                     }
                 }
-            }
-        }
-        stage('Publish Release') {
-            when {
-                branch 'main'
-            }
-            steps{
-                echo 'Publishing release...'
-                script {
-                    dockerImage = docker.build(DOCKER_REPOSITORY)
-                    echo 'Vulnerability Scanner for this container before to push.'
-                    sh "trivy image ${DOCKER_REPOSITORY}:latest"
-                    docker.withRegistry("", "docker_hub_login") {
-                        dockerImage.push("${env.BUILD_NUMBER}")
-                    }
-                }
-            }
-        }
-        stage('Vulnerability Scanner') {
-            steps {
-                echo 'Vulnerability Scanner for container...'
-                sh "trivy image raulsuarezdabo/tfm-devsecop-jenkins:1"
             }
         }
         stage('Deploy') {
