@@ -33,12 +33,14 @@ pipeline {
                 scannerHome = tool 'SonarQubeScanner'
             }
             steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-                qualitygate = waitForQualityGate()
-                if (qualitygate.status != "OK") {
-                    error "Pipeline aborted due to quality gate coverage failure: ${qualitygate.status}"
+                script {
+                    withSonarQubeEnv('sonarqube') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                    qualitygate = waitForQualityGate()
+                    if (qualitygate.status != "OK") {
+                        error "Pipeline aborted due to quality gate coverage failure: ${qualitygate.status}"
+                    }
                 }
             }
         }
