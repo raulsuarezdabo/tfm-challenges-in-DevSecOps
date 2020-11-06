@@ -4,49 +4,50 @@ pipeline {
         DOCKER_REPOSITORY = "raulsuarezdabo/tfm-devsecop-jenkins"
     }
     stages {
-        stages ('SAST'){
-            stage('Dependencies') {
-                steps {
-                    echo 'Dependency stage'
-                    script {
-                        sh "echo 'Downloading dependencies...'"
-                        sh "mvn install -DskipTests=true"
-                        sh "echo 'Verifying dependencies...'"
-                        sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
-                        dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-                    }
+        // Static Application Security Testing (SAST) start...
+        stage('Dependencies') {
+            steps {
+                echo 'Dependency stage'
+                script {
+                    sh "echo 'Downloading dependencies...'"
+                    sh "mvn install -DskipTests=true"
+                    sh "echo 'Verifying dependencies...'"
+                    sh "/bin/dependency-check/bin/dependency-check.sh --out . --scan . --format XML"
+                    dependencyCheckPublisher pattern: 'dependency-check-report.xml'
                 }
             }
-            stage('Testing') {
-                steps {
-                    echo 'Test stage'
-                    script {
-                        sh "echo 'JUnit testing...'"
-                        sh "mvn test"
-                        sh "echo 'Integration testing...'"
-                        sh "mvn test -Dtest=IntegrationTest"
-                        jacoco(execPattern: 'target/jacoco.exec')
-                    }
+        }
+        stage('Testing') {
+            steps {
+                echo 'Test stage'
+                script {
+                    sh "echo 'JUnit testing...'"
+                    sh "mvn test"
+                    sh "echo 'Integration testing...'"
+                    sh "mvn test -Dtest=IntegrationTest"
+                    jacoco(execPattern: 'target/jacoco.exec')
                 }
             }
-            stage('Sonarqube') {
-                environment {
-                    scannerHome = tool 'SonarQubeScanner'
-                }
-                steps {
-                    script {
-                        withSonarQubeEnv('sonarqube') {
-                            sh "${scannerHome}/bin/sonar-scanner"
-                        }
-                        sleep(10)
-                        qualitygate = waitForQualityGate()
-                        if (qualitygate.status != "OK") {
-                            error "Pipeline aborted due to quality gate coverage failure: ${qualitygate.status}"
-                        }
+        }
+        stage('Sonarqube') {
+            environment {
+                scannerHome = tool 'SonarQubeScanner'
+            }
+            steps {
+                script {
+                    withSonarQubeEnv('sonarqube') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                    sleep(10)
+                    qualitygate = waitForQualityGate()
+                    if (qualitygate.status != "OK") {
+                        error "Pipeline aborted due to quality gate coverage failure: ${qualitygate.status}"
                     }
                 }
             }
         }
+        // ... ends of SAST
+        // Dynamic Application Security Testing (DAST) stages starts...
         stage('Publish Release Candidate') {
             environment {
                 FILE_OUTPUT_TYPE='json'
