@@ -52,14 +52,18 @@ pipeline {
             environment {
                 FILE_OUTPUT_TYPE='json'
                 FILE_OUTPUT_NAME='results.json'
-                SEVERITY_BLOCK='CRITICAL'
             }
             when {
                 branch 'devsecop'
             }
             steps{
-                echo 'Publishing release candidate...'
                 script {
+                    if (env.BRANCH_NAME == 'devsecop') {
+                        MSG_CASE = 'Publishing Release Candidate'
+                        SEVERITY_BLOCK = 'CRITICAL'   // criteria for RC, just blocks only if finds CRITICAL
+                        CONTAINER_VERSION = env.BUILD_NUMBER+'-RC'
+                    }
+                    echo MSG_CASE
                     dockerImage = docker.build(DOCKER_REPOSITORY)
                     echo 'Vulnerability Scanner for this container before to push.'
                     sh "trivy image --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
