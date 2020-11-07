@@ -50,7 +50,12 @@ pipeline {
         }
         // ... ends of SAST
         // Dynamic Application Security Testing (DAST) stages starts...
-        stage('Prepare Image') {
+        stage('Test the image (Pen Testing)') {
+            environment {
+                CONTAINER_EXTERNAL_PORT="8090"
+                CONTAINER_INTERNA__PORT="8080"
+                CONTAINER_IP="127.0.0.1"
+            }
             when {
                 anyOf {
                     branch RC_BRANCH
@@ -60,6 +65,9 @@ pipeline {
             steps {
                 script {
                     dockerImage = docker.build(DOCKER_REPOSITORY)
+                    dockerImage.withRun("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}") { c ->
+                        startZap(host: CONTAINER_IP, port: CONTAINER_EXTERNAL_PORT, timeout: 900, failHighAlert:1, failLowAlert:10, zapHome: "/opt/zaproxy")
+                    }
                 }
             }
         }
@@ -76,11 +84,11 @@ pipeline {
             }
             steps{
                 script {
-                    if (env.BRANCH_NAME == 'devsecop') {
+                    if (env.BRANCH_NAME == RC_BRANCH) {
                         MSG_CASE = 'Publishing Release Candidate'
                         SEVERITY_BLOCK = 'CRITICAL'   // criteria for RC, just blocks only if finds CRITICAL
                         CONTAINER_VERSION = env.BUILD_NUMBER+'-RC'
-                    } else if (env.BRANCH_NAME == 'main') {
+                    } else if (env.BRANCH_NAME == RELEASE_BRANCH) {
                         MSG_CASE = 'Publishing Release'
                         SEVERITY_BLOCK = 'CRITICAL,HIGH'   // criteria for release, blocks if finds CRITICAL or HIGH
                         CONTAINER_VERSION = env.BUILD_NUMBER
