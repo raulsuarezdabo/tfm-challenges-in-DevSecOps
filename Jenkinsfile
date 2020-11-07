@@ -57,8 +57,10 @@ pipeline {
                     branch RELEASE_BRANCH
                 }
             }
-            script {
-                dockerImage = docker.build(DOCKER_REPOSITORY)
+            steps {
+                script {
+                    dockerImage = docker.build(DOCKER_REPOSITORY)
+                }
             }
         }
         stage('Publish Release') {
