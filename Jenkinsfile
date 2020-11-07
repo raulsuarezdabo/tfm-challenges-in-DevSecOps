@@ -64,10 +64,10 @@ pipeline {
             }
             steps {
                 script {
-                    dockerImage = docker.build(DOCKER_REPOSITORY)
-                    dockerImage.withRun("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
+                    pipelineContext.dockerImage = docker.build(DOCKER_REPOSITORY)
+                    pipelineContext.dockerContainer = pipelineContext.dockerImage.run("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
                     startZap(host: CONTAINER_IP, port: CONTAINER_EXTERNAL_PORT, timeout: 900, failHighAlert:1, failLowAlert:10, zapHome: "/opt/zaproxy")
-                    dockerImage.stop()
+                    pipelineContext.dockerContainer.stop()
                 }
             }
         }
