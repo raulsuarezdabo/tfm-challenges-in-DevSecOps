@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_REPOSITORY = "raulsuarezdabo/tfm-devsecop-jenkins"
+        RC_BRANCH = 'devsecop'
+        RELEASE_BRANCH = 'main'
     }
     stages {
         // Static Application Security Testing (SAST) start...
@@ -29,7 +31,7 @@ pipeline {
                 }
             }
         }
-        stage('Sonarqube') {
+        stage('Static Analysis (SAST)') {
             environment {
                 scannerHome = tool 'SonarQubeScanner'
             }
@@ -48,6 +50,17 @@ pipeline {
         }
         // ... ends of SAST
         // Dynamic Application Security Testing (DAST) stages starts...
+        stage('Prepare Image') {
+            when {
+                anyOf {
+                    branch RC_BRANCH
+                    branch RELEASE_BRANCH
+                }
+            }
+            script {
+                dockerImage = docker.build(DOCKER_REPOSITORY)
+            }
+        }
         stage('Publish Release') {
             environment {
                 FILE_OUTPUT_TYPE='json'
@@ -55,8 +68,8 @@ pipeline {
             }
             when {
                 anyOf {
-                    branch 'devsecop'
-                    branch 'main'
+                    branch RC_BRANCH
+                    branch RELEASE_BRANCH
                 }
             }
             steps{
