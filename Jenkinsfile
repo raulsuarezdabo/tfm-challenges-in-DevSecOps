@@ -1,3 +1,6 @@
+// Initialize a LinkedHashMap / object to share between stages
+def pipelineContext = [:]
+
 pipeline {
     agent any
     environment {
