@@ -55,6 +55,7 @@ pipeline {
         // Dynamic Application Security Testing (DAST) stages starts...
         stage('Test the image (Pen Testing)') {
             environment {
+                ZAP_PATH="/opt/zaproxy"
                 CONTAINER_EXTERNAL_PORT="8090"
                 CONTAINER_INTERNA__PORT="8080"
                 CONTAINER_IP="127.0.0.1"
@@ -69,7 +70,10 @@ pipeline {
                 script {
                     pipelineContext.dockerImage = docker.build(DOCKER_REPOSITORY)
                     pipelineContext.dockerContainer = pipelineContext.dockerImage.run("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
-                    startZap(host: CONTAINER_IP, port: CONTAINER_EXTERNAL_PORT, timeout: 900, failHighAlert:1, failLowAlert:10, zapHome: "/opt/zaproxy")
+                    startZap(host: "http://127.0.0.1", port: 9091, timeout: 900, failHighAlert:1, failLowAlert:10, zapHome: "/opt/zaproxy")
+                    runZapCrawler(host: "http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT}")
+                    archiveZap(failAllAlerts: 1, failHighAlerts: 0, failMediumAlerts: 0, failLowAlerts: 0, falsePositivesFilePath: "zapFalsePositives.json")
+                    //sh "${ZAP_PATH}/zap.sh -cmd -quickurl http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT} -quickprogress -quickout ~/out.xml"
                 }
             }
         }
