@@ -71,12 +71,12 @@ pipeline {
                     pipelineContext.dockerContainer = pipelineContext.dockerImage.run("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
                     startZap(host: CONTAINER_IP, port: CONTAINER_EXTERNAL_PORT, timeout: 900, failHighAlert:1, failLowAlert:10, zapHome: "/opt/zaproxy")
                 }
-                post {
-                    script {
-                        archiveZap(failAllAlerts: 1, failHighAlerts: 0, failMediumAlerts: 0, failLowAlerts: 0, falsePositivesFilePath: "zapFalsePositives.json")
-                        pipelineContext.dockerContainer.stop()
-                    }
-                }
+            }
+        }
+        post {
+            script {
+                archiveZap(failAllAlerts: 1, failHighAlerts: 0, failMediumAlerts: 0, failLowAlerts: 0, falsePositivesFilePath: "zapFalsePositives.json")
+                pipelineContext.dockerContainer.stop()
             }
         }
         stage('Publish Release') {
