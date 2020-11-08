@@ -73,14 +73,9 @@ pipeline {
                     startZap(host: "http://127.0.0.1", port: 9091, timeout: 900, failHighAlert:1, failLowAlert:10, zapHome: "/opt/zaproxy")
                     runZapCrawler(host: "http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT}")
                     archiveZap(failAllAlerts: 1, failHighAlerts: 0, failMediumAlerts: 0, failLowAlerts: 0, falsePositivesFilePath: "zapFalsePositives.json")
+                    pipelineContext.dockerContainer.stop()
                     //sh "${ZAP_PATH}/zap.sh -cmd -quickurl http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT} -quickprogress -quickout ~/out.xml"
                 }
-            }
-        }
-        post {
-            script {
-                archiveZap(failAllAlerts: 1, failHighAlerts: 0, failMediumAlerts: 0, failLowAlerts: 0, falsePositivesFilePath: "zapFalsePositives.json")
-                pipelineContext.dockerContainer.stop()
             }
         }
         stage('Publish Release') {
