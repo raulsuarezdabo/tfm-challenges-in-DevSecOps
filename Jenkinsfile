@@ -45,6 +45,7 @@ pipeline {
             }
             steps {
                 script {
+                    sh "curl http://sonarqube:9000 > output-html.txt"
                     withSonarQubeEnv('sonarqube') {
                         sh "${scannerHome}/bin/sonar-scanner"
                     }
