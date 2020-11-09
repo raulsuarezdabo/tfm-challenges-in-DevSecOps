@@ -2,7 +2,10 @@
 def pipelineContext = [:]
 
 pipeline {
-    agent any
+    agent {
+        image 'maven:3-alpine'
+        args '-v /root/.m2:/root/.m2'
+    }
     environment {
         DOCKER_REPOSITORY = "raulsuarezdabo/tfm-devsecop-jenkins"
         RC_BRANCH = 'devsecop'
@@ -59,6 +62,7 @@ pipeline {
                 CONTAINER_EXTERNAL_PORT="8090"
                 CONTAINER_INTERNA__PORT="8080"
                 CONTAINER_IP="127.0.0.1"
+                ZAP_FILENAME_OUT="zap-owasp-report.xml"
             }
             when {
                 anyOf {
@@ -71,7 +75,7 @@ pipeline {
                     try {
                         pipelineContext.dockerImage = docker.build(DOCKER_REPOSITORY)
                         pipelineContext.dockerContainer = pipelineContext.dockerImage.run("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
-                        sh "${ZAP_PATH}/zap.sh -cmd -quickurl http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT} -quickprogress -quickout ${env.WORKSPACE}/out.xml"
+                        sh "${ZAP_PATH}/zap.sh -cmd -quickurl http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT} -quickprogress -quickout ${env.WORKSPACE}/target/${ZAP_FILENAME_OUT}"
                     } finally {
                         pipelineContext.dockerContainer.stop()
                     }
