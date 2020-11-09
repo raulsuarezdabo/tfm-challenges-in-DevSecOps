@@ -2,12 +2,7 @@
 def pipelineContext = [:]
 
 pipeline {
-    agent {
-        docker {
-            image 'maven:3-alpine'
-            args '-v /root/.m2:/root/.m2'
-        }
-    }
+    agent any
     environment {
         DOCKER_REPOSITORY = "raulsuarezdabo/tfm-devsecop-jenkins"
         RC_BRANCH = 'devsecop'
@@ -16,6 +11,12 @@ pipeline {
     stages {
         // Static Application Security Testing (SAST) start...
         stage('Dependencies') {
+            agent {
+                docker {
+                    image 'maven:3-alpine'
+                    args '-v /root/.m2:/root/.m2'
+                }
+            }
             steps {
                 echo 'Dependency stage'
                 script {
@@ -28,6 +29,12 @@ pipeline {
             }
         }
         stage('Testing') {
+            agent {
+                docker {
+                    image 'maven:3-alpine'
+                    args '-v /root/.m2:/root/.m2'
+                }
+            }
             steps {
                 echo 'Test stage'
                 script {
