@@ -84,7 +84,7 @@ pipeline {
                         sh "docker network create ${pipelineContext.networkId}"
                         pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
                         pipelineContext.appContainer = pipelineContext.appImage.run("--network=${pipelineContext.networkId} --network-alias=${APP_NETWORK_ALIAS}")
-                        sh "docker run -v ${pwd()}:/zap/wrk/:rw --network ${pipelineContext.networkId} -t owasp/zap2docker-bare zap-baseline.py -t http://${APP_NETWORK_ALIAS}:${APP_PORT} -r ${ZAP_FILE_REPORT}"
+                        sh "docker run -v ${pwd()}:/zap/wrk/:rw --network ${pipelineContext.networkId} -t owasp/zap2docker-stable zap-baseline.py -t http://${APP_NETWORK_ALIAS}:${APP_PORT} -r ${ZAP_FILE_REPORT}"
                         publishHTML (target: [
                             allowMissing: false,
                             alwaysLinkToLastBuild: false,
