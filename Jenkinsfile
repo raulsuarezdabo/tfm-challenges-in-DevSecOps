@@ -84,7 +84,7 @@ pipeline {
                         sh "docker network create ${pipelineContext.networkId}"
                         pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
                         pipelineContext.appContainer = pipelineContext.appImage.run("--network=${pipelineContext.networkId} --network-alias=${APP_NETWORK_ALIAS}")
-                        pipelineContext.zapContainer = docker.image('owasp/zap2docker-weekly')
+                        pipelineContext.zapImage = docker.image('owasp/zap2docker-weekly')
                         pipelineContext.zapContainer = pipelineContext.zapImage.run("-v $(pwd):/zap/wrk/:rw -t --network=${pipelineContext.networkId} -t https://${APP_NETWORK_ALIAS}:${APP_PORT} -r ${workspace}/${ZAP_FILE_REPORT}")
                     } finally {
                         pipelineContext.appContainer.stop()
