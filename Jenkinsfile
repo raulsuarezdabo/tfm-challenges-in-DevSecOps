@@ -87,6 +87,7 @@ pipeline {
             steps {
                 script {
                     try {
+                        sh "ls"
                         pipelineContext.dockerImage = docker.build(DOCKER_REPOSITORY, ".")
                         pipelineContext.dockerContainer = pipelineContext.dockerImage.run("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
                         docker.run()
