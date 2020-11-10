@@ -67,11 +67,9 @@ pipeline {
         // Dynamic Application Security Testing (DAST) stages starts...
         stage('Test the image (Pen Testing)') {
             environment {
-                ZAP_PATH="/opt/zaproxy"
-                CONTAINER_EXTERNAL_PORT="8090"
-                CONTAINER_INTERNA__PORT="8080"
-                CONTAINER_IP="127.0.0.1"
-                ZAP_FILENAME_OUT="zap-owasp-report.xml"
+                APP_NETWORK_ALIAS="app"
+                APP_PORT="8080"
+                ZAP_FILE_REPORT="zap-owasp-report.html"
             }
             when {
                 anyOf {
@@ -82,13 +80,16 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "ls"
-                        pipelineContext.dockerImage = docker.build(DOCKER_REPOSITORY, ".")
-                        pipelineContext.dockerContainer = pipelineContext.dockerImage.run("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
-                        sh "docker run -i owasp/zap2docker-stable zap-cli report -f html -o zap-owasp-report.html quick-scan --self-contained --start-options '-config api.disablekey=true' http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT}"
-                        //sh "zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT}"
+                        pipelineContext.networkId = UUID.randomUUID().toString()
+                        sh "docker network create ${pipelineContext.networkId}"
+                        pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
+                        pipelineContext.appContainer = pipelineContext.appImage.run("--network=${pipelineContext.networkId} --network-alias=${APP_NETWORK_ALIAS}")
+                        pipelineContext.zapContainer = docker.image('owasp/zap2docker-weekly')
+                        pipelineContext.zapContainer = pipelineContext.zapImage.run("-v $(pwd):/zap/wrk/:rw -t --network=${pipelineContext.networkId} -t https://${APP_NETWORK_ALIAS}:${APP_PORT} -r ${workspace}/${ZAP_FILE_REPORT}")
                     } finally {
-                        pipelineContext.dockerContainer.stop()
+                        pipelineContext.appContainer.stop()
+                        pipelineContext.zapContainer.stop()
+                        sh "docker network rm ${pipelineContext.networkId}"
                     }
 
                 }
