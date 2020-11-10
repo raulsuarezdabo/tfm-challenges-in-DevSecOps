@@ -89,7 +89,9 @@ pipeline {
                     try {
                         pipelineContext.dockerImage = docker.build(DOCKER_REPOSITORY)
                         pipelineContext.dockerContainer = pipelineContext.dockerImage.run("-p ${CONTAINER_EXTERNAL_PORT}:${CONTAINER_INTERNA__PORT}")
-                        sh "zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT}"
+                        docker.run()
+                        sh "docker run -i owasp/zap2docker-stable zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT}"
+                        //sh "zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://${CONTAINER_IP}:${CONTAINER_EXTERNAL_PORT}"
                     } finally {
                         pipelineContext.dockerContainer.stop()
                     }
