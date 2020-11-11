@@ -83,9 +83,10 @@ pipeline {
                     level = ""
                     if (env.BRANCH_NAME == RC_BRANCH) {
                         level = "High"
-                    } 
-                    if (env.BRANCH_NAME == RELEASE_BRANCH) {
+                    } else if (env.BRANCH_NAME == RELEASE_BRANCH) {
                         level = "Medium"
+                    } else {
+                        error "Pipeline error, impossible to Pen Testing an image on branch ${env.BRANCH_NAME}"
                     }
                     try {
                         pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
@@ -121,14 +122,14 @@ pipeline {
                         SEVERITY_BLOCK = 'CRITICAL,HIGH'   // criteria for release, blocks if finds CRITICAL or HIGH
                         CONTAINER_VERSION = env.BUILD_NUMBER
                     } else {
-                        error "Pipeline error, impossible to create an image on this branch ${env.BRANCH_NAME}"
+                        error "Pipeline error, impossible to create an image on branch ${env.BRANCH_NAME}"
                     }
                     echo MSG_CASE
                     dockerImage = docker.build(DOCKER_REPOSITORY)
                     echo 'Cleaning vulnerability scanner...'
-                    sh "trivy image --clear-cache"
+                    sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --clear-cache"
                     echo 'Vulnerability Scanner for this container before push.'
-                    sh "trivy image --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
+                    sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
                     docker.withRegistry("", "docker_hub_login") {
                         dockerImage.push("${CONTAINER_VERSION}")
                     }
@@ -140,28 +141,9 @@ pipeline {
             when {
                 branch 'main'
             }
-            environment {
-                CLOUDSDK_CORE_DISABLE_PROMPTS=1
-                CLUSTER_ZONE="europe-west1-b"
-                CLUSTER_ID="cluster-tfm-devsecop-jenkins"
-                PROJECT_ID="first-cluster-293016"
-            }
             steps {
-                echo 'Deploying...'
-                withCredentials([[$class: 'FileBinding', credentialsId: 'secret_file', variable: 'KEY_FILE']]) {
-                    sh """
-                        if [ ! -d $HOME/google-cloud-sdk/bin ]; then
-                        rm -rf $HOME/google-cloud-sdk;
-                        curl https://sdk.cloud.google.com | bash > /dev/null;
-                        fi
-                        source $HOME/google-cloud-sdk/path.bash.inc
-                        gcloud components update kubectl
-                        gcloud version
-                        gcloud auth activate-service-account --key-file $KEY_FILE
-                        gcloud container clusters get-credentials $CLUSTER_ID --zone $CLUSTER_ZONE --project $PROJECT_ID
-                        kubectl apply -f kube.yml
-                    """
-                }
+                echo 'Deploying...not implemented yet'
+                
             }
         }
     }
