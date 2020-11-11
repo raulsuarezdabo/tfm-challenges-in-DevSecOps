@@ -70,9 +70,6 @@ pipeline {
                 NETWORK_NAME="ci-cd_cicd"
                 APP_NETWORK_ALIAS="app"
                 APP_PORT="8081"
-                ZAP_FILE_REPORT="zap-owasp-report.html"
-                ZAP_NETWORK_ALIAS="zap"
-                ZAP_PORT="8000"
                 ZAP_CONTAINER_NAME="ci-cd_zap_1"
             }
             when {
@@ -83,28 +80,20 @@ pipeline {
             }
             steps {
                 script {
+                    level = ""
+                    if (env.BRANCH_NAME == RC_BRANCH) {
+                        level = "Hight"
+                    } else if () {
+                        level = "Medium"
+                    }
                     try {
                         pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
                         pipelineContext.appContainer = pipelineContext.appImage.run("--network=${NETWORK_NAME} --network-alias=${APP_NETWORK_ALIAS}")
-                        sh "docker exec ${ZAP_CONTAINER_NAME}  zap-cli --verbose quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l Medium" 
-                        //sh "docker exec zap zap-cli --verbose alerts --alert-level Medium -f json | jq length"
-                        pipelineContext.currentStage.result = 'SUCCESS'
+                        sh "docker exec ${ZAP_CONTAINER_NAME}  zap-cli --verbose quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l ${evel}"
                     } catch (Exception e) {
-                        error ("Pipeline aborted due to quality policy, ZAP report has more information")
+                        error "Pipeline aborted due to quality policy, ZAP report has more information"
                     } finally {
                         pipelineContext.appContainer.stop()
-                    }
-                    sh "docker exec ${ZAP_CONTAINER_NAME} zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html"
-                    publishHTML target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: '/opt/dast/reports',
-                        reportFiles: 'owasp-quick-scan-report.html',
-                        reportName: 'Analisis DAST'
-                      ]        
-                    if (pipelineContext.currentStage.result != 'SUCCESS') {
-                        
                     }
                 }
             }
