@@ -98,7 +98,7 @@ pipeline {
                         reportFiles: 'owasp-quick-scan-report.html',
                         reportName: 'Analisis DAST'
                       ]        
-                    if pipelineContext.currentStage.result != 'SUCCESS' {
+                    if (pipelineContext.currentStage.result != 'SUCCESS') {
                         error ("Pipeline aborted due to quality policy, ZAP report has more information")
                     }
                 }
