@@ -90,7 +90,7 @@ pipeline {
                     try {
                         pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
                         pipelineContext.appContainer = pipelineContext.appImage.run("--network=${NETWORK_NAME} --network-alias=${APP_NETWORK_ALIAS}")
-                        sh "docker exec ${ZAP_CONTAINER_NAME}  zap-cli --verbose quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l ${evel}"
+                        sh "docker exec ${ZAP_CONTAINER_NAME}  zap-cli --verbose quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l ${level}"
                     } catch (Exception e) {
                         error "Pipeline aborted due to quality policy, ZAP report has more information"
                     } finally {
