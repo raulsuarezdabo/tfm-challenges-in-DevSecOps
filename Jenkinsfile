@@ -82,7 +82,7 @@ pipeline {
                 script {
                     level = ""
                     if (env.BRANCH_NAME == RC_BRANCH) {
-                        level = "Hight"
+                        level = "High"
                     } 
                     if (env.BRANCH_NAME == RELEASE_BRANCH) {
                         level = "Medium"
