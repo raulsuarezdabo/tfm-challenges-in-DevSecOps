@@ -101,10 +101,6 @@ pipeline {
             }
         }
         stage('Publish Release') {
-            environment {
-                FILE_OUTPUT_TYPE='json'
-                FILE_OUTPUT_NAME='results.json'
-            }
             when {
                 anyOf {
                     branch RC_BRANCH
@@ -129,7 +125,7 @@ pipeline {
                     echo 'Cleaning vulnerability scanner...'
                     sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --clear-cache"
                     echo 'Vulnerability Scanner for this container before push.'
-                    sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --exit-code 1 --severity ${SEVERITY_BLOCK} -f ${FILE_OUTPUT_TYPE} -o ${FILE_OUTPUT_NAME} ${DOCKER_REPOSITORY}:latest"
+                    sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --exit-code 1 --severity ${SEVERITY_BLOCK} ${DOCKER_REPOSITORY}:latest"
                     docker.withRegistry("", "docker_hub_login") {
                         dockerImage.push("${CONTAINER_VERSION}")
                     }
