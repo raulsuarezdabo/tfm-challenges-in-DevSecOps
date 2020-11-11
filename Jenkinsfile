@@ -73,6 +73,7 @@ pipeline {
                 ZAP_FILE_REPORT="zap-owasp-report.html"
                 ZAP_NETWORK_ALIAS="zap"
                 ZAP_PORT="8000"
+                ZAP_CONTAINER_NAME="ci-cd_zap_1"
             }
             when {
                 anyOf {
@@ -85,13 +86,13 @@ pipeline {
                     try {
                         pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
                         pipelineContext.appContainer = pipelineContext.appImage.run("--network=${NETWORK_NAME} --network-alias=${APP_NETWORK_ALIAS}")
-                        sh "docker exec zap --network=${NETWORK_NAME} zap-cli --verbose --zap-url=http://${ZAP_NETWORK_ALIAS} --port=${ZAP_PORT} quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l Medium" 
+                        sh "docker exec ${ZAP_CONTAINER_NAME} --network=${NETWORK_NAME} zap-cli --verbose --zap-url=http://${ZAP_NETWORK_ALIAS} --port=${ZAP_PORT} quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l Medium" 
                         //sh "docker exec zap zap-cli --verbose alerts --alert-level Medium -f json | jq length"
                         pipelineContext.currentStage.result = 'SUCCESS'
                     } finally {
                         pipelineContext.appContainer.stop()
                     }
-                    sh "docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html"
+                    sh "docker exec ${ZAP_CONTAINER_NAME} zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html"
                     publishHTML target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: false,
