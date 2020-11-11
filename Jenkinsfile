@@ -67,6 +67,7 @@ pipeline {
         // Dynamic Application Security Testing (DAST) stages starts...
         stage('Test the image (Pen Testing)') {
             environment {
+                NETWORK_NAME="ci-cd_cicd"
                 APP_NETWORK_ALIAS="app"
                 APP_PORT="8081"
                 ZAP_FILE_REPORT="zap-owasp-report.html"
@@ -80,23 +81,26 @@ pipeline {
             steps {
                 script {
                     try {
-                        pipelineContext.networkId = UUID.randomUUID().toString()
-                        sh "docker network create ${pipelineContext.networkId}"
                         pipelineContext.appImage = docker.build(DOCKER_REPOSITORY, ".")
-                        pipelineContext.appContainer = pipelineContext.appImage.run("--network=${pipelineContext.networkId} --network-alias=${APP_NETWORK_ALIAS}")
-                        sh "docker run -v ${pwd()}:/zap/wrk/:rw --network ${pipelineContext.networkId} -t owasp/zap2docker-stable zap-baseline.py -t http://${APP_NETWORK_ALIAS}:${APP_PORT} -r ${ZAP_FILE_REPORT}"
-                        publishHTML (target: [
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: false,
-                            keepAll: true,
-                            reportFiles: "${workspace}/${ZAP_FILE_REPORT}",
-                            reportName: "Zaproxy Report"
-                        ])
+                        pipelineContext.appContainer = pipelineContext.appImage.run("--network=${NETWORK_NAME} --network-alias=${APP_NETWORK_ALIAS}")
+                        sh "docker exec zap --network=${NETWORK_NAME} zap-cli --verbose quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l Medium" 
+                        //sh "docker exec zap zap-cli --verbose alerts --alert-level Medium -f json | jq length"
+                        pipelineContext.currentStage.result = 'SUCCESS'
                     } finally {
                         pipelineContext.appContainer.stop()
-                        sh "docker network rm ${pipelineContext.networkId}"
                     }
-
+                    sh "docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html"
+                    publishHTML target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: '/opt/dast/reports',
+                        reportFiles: 'owasp-quick-scan-report.html',
+                        reportName: 'Analisis DAST'
+                      ]        
+                    if pipelineContext.currentStage.result != 'SUCCESS' {
+                        error ("Pipeline aborted due to quality policy, ZAP report has more information")
+                    }
                 }
             }
         }
