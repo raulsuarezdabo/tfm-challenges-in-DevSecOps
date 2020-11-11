@@ -89,6 +89,8 @@ pipeline {
                         sh "docker exec ${ZAP_CONTAINER_NAME}  zap-cli --verbose quick-scan http://${APP_NETWORK_ALIAS}:${APP_PORT} -l Medium" 
                         //sh "docker exec zap zap-cli --verbose alerts --alert-level Medium -f json | jq length"
                         pipelineContext.currentStage.result = 'SUCCESS'
+                    } catch (Exception e) {
+                        error ("Pipeline aborted due to quality policy, ZAP report has more information")
                     } finally {
                         pipelineContext.appContainer.stop()
                     }
@@ -102,7 +104,7 @@ pipeline {
                         reportName: 'Analisis DAST'
                       ]        
                     if (pipelineContext.currentStage.result != 'SUCCESS') {
-                        error ("Pipeline aborted due to quality policy, ZAP report has more information")
+                        
                     }
                 }
             }
