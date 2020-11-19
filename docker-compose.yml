@@ -1,0 +1,67 @@
+version: "3"
+
+services:
+  jenkins:
+    image: jenkinsci/blueocean
+    user: root
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "50000:50000"
+    volumes:
+      - ./jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: 
+      - cicd
+  sonarqube:
+    image: sonarqube
+    command: 
+      - -Dsonar.ce.javaOpts=-Xmx2048m -Dsonar.web.javaOpts=-Xmx2048m
+    depends_on:
+      - db
+    ports:
+      - "9000:9000"
+    networks:
+      - cicd
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - ./sonarqube_conf:/opt/sonarqube/conf
+      - ./sonarqube_data:/opt/sonarqube/data
+      - ./sonarqube_extensions:/opt/sonarqube/extensions
+      - ./sonarqube_logs:/opt/sonarqube/logs
+  db:
+    image: postgres
+    networks:
+      - cicd
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    ports: 
+      - 5432:5432
+    volumes:
+      - ./postgresql:/var/lib/postgresql
+      - ./postgresql_data:/var/lib/postgresql/data
+
+  zap:
+    image: owasp/zap2docker-weekly
+    networks:
+      - cicd
+    ports:
+      - 8000:8000
+    # We start a ZAP daemon that can be connected to from other hosts. We will connect to this from Jenkins to run our scans
+    entrypoint: zap.sh -daemon -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -config api.disablekey=true
+    volumes:
+      - ./opt/dast/reports":/zap/reports/:rw
+networks:
+  cicd:
+    driver: bridge
+volumes:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql:
+  postgresql_data:
