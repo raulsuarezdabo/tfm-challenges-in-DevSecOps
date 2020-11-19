@@ -5,7 +5,7 @@ pipeline {
     agent any
     environment {
         DOCKER_REPOSITORY = "raulsuarezdabo/tfm-devsecop-jenkins"
-        RC_BRANCH = 'devsecop'
+        RC_BRANCH = 'develop'
         RELEASE_BRANCH = 'main'
     }
     stages {
