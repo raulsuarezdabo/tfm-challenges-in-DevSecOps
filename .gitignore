@@ -199,3 +199,12 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,java,maven,windows,linux,macos
+#
+jenkins_data/
+sonarqube_conf/
+sonarqube_data/
+sonarqube_extensions/
+sonarqube_logs/
+postgresql/
+postgresql_data/
+opt/
