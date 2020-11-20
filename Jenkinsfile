@@ -29,6 +29,9 @@ pipeline {
             }
         }
         stage('Testing') {
+            environment {
+                scannerHome = tool 'SonarQubeScanner'
+            }
             agent {
                 docker {
                     image 'maven:3-alpine'
@@ -44,14 +47,9 @@ pipeline {
                     sh "mvn test -Dtest=IntegrationTest"
                     jacoco(execPattern: 'target/jacoco.exec')
                 }
-            }
-        }
-        stage('Static Analysis (SAST)') {
-            environment {
-                scannerHome = tool 'SonarQubeScanner'
-            }
-            steps {
+
                 script {
+                    echo 'Static Analysis (SAST)'
                     sh "ls -la"
                     withSonarQubeEnv('sonarqube') {
                         sh "${scannerHome}/bin/sonar-scanner"
