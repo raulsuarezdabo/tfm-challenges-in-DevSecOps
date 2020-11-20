@@ -35,9 +35,6 @@ pipeline {
                     args '-v /root/.m2:/root/.m2'
                 }
             }
-            environment {
-                scannerHome = tool 'SonarQubeScanner'
-            }
             steps {
                 echo 'Test stage'
                 script {
@@ -47,9 +44,13 @@ pipeline {
                     sh "mvn test -Dtest=IntegrationTest"
                     jacoco(execPattern: 'target/jacoco.exec')
                 }
-        //stage('Static Analysis (SAST)') {
-
-                echo "Static Analysis (SAST)"
+            }
+        }
+        stage('Static Analysis (SAST)') {
+            environment {
+                scannerHome = tool 'SonarQubeScanner'
+            }
+            steps {
                 script {
                     withSonarQubeEnv('sonarqube') {
                         sh "${scannerHome}/bin/sonar-scanner"
